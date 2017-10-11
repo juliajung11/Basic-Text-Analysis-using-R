@@ -4,6 +4,7 @@
 # install.packages("magrittr")
 # install.packages("dplyr")
 # install.packages("wordcloud")
+# install.packages("ggplot2")
 
 # Loading the necessary packages
 library(readtext)
@@ -24,7 +25,7 @@ customstopwords <- c("s", "http")
 
 # Creating DFM
 snptokens <- tokens(snp, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
-snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem = FALSE) %>% 
+snpdfm <- dfm(snptokens, stem = FALSE) %>% 
   dfm_trim(min_doc = 5, min_count = 10) %>% 
   dfm_weight(type = 'tfidf')
 
@@ -32,10 +33,36 @@ snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem
 topfeatures(snpdfm, 30) 
 textplot_wordcloud(snpdfm)
 
-# Wait?
-kwic(snp, "shared", 3)
-kwic(snp, "brexit", 3)
+# Plotting a histogram
+library(ggplot2)
+snpfeatures <- topfeatures(snpdfm, 100)
+topDf <- data.frame(list(term = names(snpfeatures), frequency = unname(snpfeatures))) # Create a data.frame for ggplot
+topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency order
+ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1))
 
+# Doing it again, removing stop words this time!
+snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem = FALSE) %>% 
+  dfm_trim(min_doc = 5, min_count = 10) %>% 
+  dfm_weight(type = 'tfidf')
+
+# Inspecting the results again
+topfeatures(snpdfm, 30) 
+textplot_wordcloud(snpdfm)
+
+# Plotting it again
+snpfeatures <- topfeatures(snpdfm, 100)
+topDf <- data.frame(list(term = names(snpfeatures), frequency = unname(snpfeatures))) # Create a data.frame for ggplot
+topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency order
+ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1))
+
+# Wait? What happens with "shared"?
+kwic(snp, "shared", 3)
+
+# Keyword in Context
+kwic(snp, "brexit", 4)
+kwic(snp, "eu", 4)
 
 
 
@@ -45,7 +72,6 @@ kwic(snp, "brexit", 3)
 # Loading the UKIP corpus
 ukip <-  corpus(readtext("ukip_corpus.csv", text_field = "post_message"))
 cat(ukip[1:3])
-docvars(ukip, "Party") <- "UKIP"
 ukiptokens <- tokens(ukip, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
 ukipdfm <- dfm(ukiptokens, remove = c(stopwords('english'), customstopwords)) %>% 
   dfm_trim(min_doc = 5, min_count = 10) %>% 
@@ -53,7 +79,16 @@ ukipdfm <- dfm(ukiptokens, remove = c(stopwords('english'), customstopwords)) %>
 topfeatures(ukipdfm)
 textplot_wordcloud(ukipdfm)
 
-# Keyness Analysis
+# plotting it
+ukipfeatures <- topfeatures(ukipdfm, 100)
+topDf <- data.frame(list(term = names(ukipfeatures), frequency = unname(ukipfeatures))) # Create a data.frame for ggplot
+topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency order
+ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
+    theme(axis.text.x=element_text(angle=90, hjust=1))
+
+
+# =================================== Keyness Analysis =======================================
+
 kwds <- textstat_keyness(rbind(snpdfm, ukipdfm), target = seq_along(snptokens))
 head(kwds, 20)
 tail(kwds, 20)
