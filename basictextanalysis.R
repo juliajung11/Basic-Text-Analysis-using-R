@@ -67,7 +67,7 @@ kwic(snp, "eu", 4)
 
 
 
-### Keyword Analysis
+# =================================== Keyness Analysis =======================================
 
 # Loading the UKIP corpus
 ukip <-  corpus(readtext("ukip_corpus.csv", text_field = "post_message"))
@@ -86,9 +86,7 @@ topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency
 ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
     theme(axis.text.x=element_text(angle=90, hjust=1))
 
-
-# =================================== Keyness Analysis =======================================
-
+# Estimating Keyness
 kwds <- textstat_keyness(rbind(snpdfm, ukipdfm), target = seq_along(snptokens))
 head(kwds, 20)
 tail(kwds, 20)
