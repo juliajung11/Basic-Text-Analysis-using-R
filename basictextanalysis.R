@@ -1,9 +1,9 @@
 # Installing the packages
-install.packages("readtext")
-install.packages("quanteda")
-install.packages("magrittr")
-install.packages("dplyr")
-install.packages("wordcloud")
+# install.packages("readtext")
+# install.packages("quanteda")
+# install.packages("magrittr")
+# install.packages("dplyr")
+# install.packages("wordcloud")
 
 # Loading the necessary packages
 library(readtext)
@@ -12,7 +12,7 @@ library(magrittr)
 
 # Loading the documents
 snp <-  corpus(readtext("SNP_corpus.csv", text_field = "post_message"))
-cat(snp[1:10]) # print the first 10 documents
+snp[1:10] # print the first 10 documents
 ndoc(snp) # Number of Documents
 docnames(snp) # Document Names
 nchar(snp[1:10]) # Number of character for the first 10 documents
