@@ -4,8 +4,6 @@ Justin Ho
 
 
 
-## R Basics
-
 R is simply a calculator, you can perform simple computation by typing the equation.
 
 ```r
