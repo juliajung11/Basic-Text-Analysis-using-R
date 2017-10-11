@@ -80,7 +80,7 @@ comparison.cloud(kwdssig, random.order=FALSE, colors = c("goldenrod1","blueviole
 dev.off()
 
 ### Challenge: 
-### 1. Expand the customstopword 
+### 1. Expand the customstopword
 ### 2. Re-do the analysis
 ### 3. Any different result? Share with the others!
 
