@@ -1,10 +1,10 @@
 # Installing the packages
-# install.packages("readtext")
-# install.packages("quanteda")
-# install.packages("magrittr")
-# install.packages("dplyr")
-# install.packages("wordcloud")
-# install.packages("ggplot2")
+install.packages("readtext")
+install.packages("quanteda")
+install.packages("magrittr")
+install.packages("dplyr")
+install.packages("wordcloud")
+install.packages("ggplot2")
 
 # Loading the necessary packages
 library(readtext)
@@ -21,7 +21,7 @@ ntoken(snp[1:10]) # Number of tokens for the first 10 documents
 ntoken(snp[1:10], remove_punct = TRUE) # Number of tokens for the first 10 documents after removing punctuation
 
 # Defining custom stopwords
-customstopwords <- c("s", "http")
+customstopwords <- c("s", "http", "stopword")
 
 # Creating DFM
 snptokens <- tokens(snp, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
