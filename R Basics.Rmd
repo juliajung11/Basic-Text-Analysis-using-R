@@ -39,7 +39,7 @@ text
 
 A vector is a sequence of data elements, we can use "c()" to define a vector.
 ```{r}
-vector <- c(1, 2, 5, 7, 8, 9, 10)
+vector <- c(1, 2, 5, 7, 8, 9, 10, 100)
 vector
 ```
 
@@ -77,7 +77,6 @@ textvector <- c("This", "is", "a", "test", "message", ".")
 textvector
 textvector[2]
 head(textvector, 3)
-summary(textvector)
 ```
 
 You can nest the function like this.

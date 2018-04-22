@@ -1,3 +1,9 @@
+# ---
+# title: "Basic Text Analysis Using R (workshop material)"
+# author: "Justin Ho"
+# last updated: "22/04/2018"
+# ---
+
 # Installing the packages
 install.packages("readtext")
 install.packages("quanteda")
@@ -12,7 +18,9 @@ library(quanteda)
 library(magrittr)
 
 # Loading the documents
-snp <-  corpus(readtext("SNP_corpus.csv", text_field = "post_message"))
+snp <-  readtext("SNP_corpus.csv", text_field = "post_message") %>% corpus()
+
+# The followings are not necessary steps, but it is always a good idea to view a portion of your data
 snp[1:10] # print the first 10 documents
 ndoc(snp) # Number of Documents
 docnames(snp) # Document Names
@@ -26,16 +34,17 @@ customstopwords <- c("s", "http", "stopword")
 # Creating DFM
 snptokens <- tokens(snp, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
 snpdfm <- dfm(snptokens, stem = FALSE) %>% 
-  dfm_trim(min_doc = 5, min_count = 10) %>% 
-  dfm_weight(type = 'tfidf')
+  dfm_trim(min_doc = 5, min_count = 10)
 
 # Inspecting the results
 topfeatures(snpdfm, 30) 
-textplot_wordcloud(snpdfm)
+
+# A very slow way to plot a wordcloud, use with caution
+# textplot_wordcloud(snpdfm)
 
 # Plotting a histogram
 library(ggplot2)
-snpfeatures <- topfeatures(snpdfm, 100)
+snpfeatures <- topfeatures(snpdfm, 100) # Don't worry about the codes, just change "snpdfm" into the dfm you want to plot
 topDf <- data.frame(list(term = names(snpfeatures), frequency = unname(snpfeatures))) # Create a data.frame for ggplot
 topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency order
 ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
@@ -43,12 +52,10 @@ ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
 
 # Doing it again, removing stop words this time!
 snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem = FALSE) %>% 
-  dfm_trim(min_doc = 5, min_count = 10) %>% 
-  dfm_weight(type = 'tfidf')
+  dfm_trim(min_doc = 5, min_count = 10)
 
 # Inspecting the results again
 topfeatures(snpdfm, 30) 
-textplot_wordcloud(snpdfm)
 
 # Plotting it again
 snpfeatures <- topfeatures(snpdfm, 100)
@@ -70,14 +77,12 @@ kwic(snp, "eu", 4)
 # =================================== Keyness Analysis =======================================
 
 # Loading the UKIP corpus
-ukip <-  corpus(readtext("ukip_corpus.csv", text_field = "post_message"))
+ukip <-  readtext("ukip_corpus.csv", text_field = "post_message") %>% corpus()
 cat(ukip[1:3])
 ukiptokens <- tokens(ukip, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
 ukipdfm <- dfm(ukiptokens, remove = c(stopwords('english'), customstopwords)) %>% 
-  dfm_trim(min_doc = 5, min_count = 10) %>% 
-  dfm_weight(type = 'tfidf')
+  dfm_trim(min_doc = 5, min_count = 10)
 topfeatures(ukipdfm)
-textplot_wordcloud(ukipdfm)
 
 # plotting it
 ukipfeatures <- topfeatures(ukipdfm, 100)
@@ -87,14 +92,14 @@ ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
     theme(axis.text.x=element_text(angle=90, hjust=1))
 
 # Estimating Keyness
-kwds <- textstat_keyness(rbind(snpdfm, ukipdfm), target = seq_along(snptokens))
+kwds <- textstat_keyness(rbind(snpdfm, ukipdfm), target = seq_along(snptokens)) # Making SNP tokens as the target
 head(kwds, 20)
 tail(kwds, 20)
 textplot_keyness(kwds)
 
 library(dplyr)
 #Select all word with p-value <= 0.05 and then make a comparison wordcloud
-kwdssig <- data.frame(term = row.names(kwds), chi2 = kwds$chi2, p=kwds$p) %>% 
+kwdssig <- data.frame(term = kwds$feature, chi2 = kwds$chi2, p=kwds$p) %>% 
   filter(kwds$p <= 0.05) %>% 
   select(term, chi2)
 row.names(kwdssig) <- kwdssig$term
@@ -109,11 +114,6 @@ tail(kwdssig)
 library(wordcloud)
 set.seed(1024)
 png("SNPvsUKIP.png", width = 1200, height = 1200)
-comparison.cloud(kwdssig, random.order=FALSE, colors = c("goldenrod1","blueviolet"),scale=c(10,.6), title.size=5, max.words=500)
+comparison.cloud(kwdssig, random.order=FALSE, colors = c("goldenrod1","blueviolet"),scale=c(10,.6), title.size=5, max.words=600)
 dev.off()
-
-### Challenge: 
-### 1. Expand the customstopword
-### 2. Re-do the analysis
-### 3. Any different result? Share with the others!
 
