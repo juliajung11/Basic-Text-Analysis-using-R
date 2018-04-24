@@ -44,7 +44,8 @@ topfeatures(snpdfm, 30)
 
 # Plotting a histogram
 library(ggplot2)
-snpfeatures <- topfeatures(snpdfm, 100) # Don't worry about the codes, just change "snpdfm" into the dfm you want to plot
+# Don't worry about the codes, just change "snpdfm" into the dfm you want to plot
+snpfeatures <- topfeatures(snpdfm, 100)  # Putting the top 100 words into a new object
 topDf <- data.frame(list(term = names(snpfeatures), frequency = unname(snpfeatures))) # Create a data.frame for ggplot
 topDf$term <- with(topDf, reorder(term, -frequency)) # Sort by reverse frequency order
 ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
@@ -56,6 +57,10 @@ snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem
 
 # Inspecting the results again
 topfeatures(snpdfm, 30) 
+
+# textplot_wordcloud(snpdfm,
+#                    min.freq = 1,
+#                    colors = c("#1B9E77","#D95F02","#7570B3","#E7298A"))
 
 # Plotting it again
 snpfeatures <- topfeatures(snpdfm, 100)
