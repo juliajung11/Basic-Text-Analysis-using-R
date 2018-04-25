@@ -7,5 +7,7 @@ This workshop will introduce participants to the R programming language, and sho
 Tt seems the R 3.5 (released just two days ago) is incompatible with the packages. Please try and install R 3.4.4 instead. 
 
 Here's some links for windows and Mac OS X:
+
 https://cran.r-project.org/bin/windows/base/R-3.4.4-win.exe
+
 https://cran.r-project.org/bin/macosx/R-3.4.4.pkg
