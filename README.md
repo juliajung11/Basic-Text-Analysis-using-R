@@ -4,7 +4,7 @@ This workshop will introduce participants to the R programming language, and sho
 
 ## R Version
 
-Tt seems the R 3.5 (released just two days ago) is incompatible with the packages. Please try and install R 3.4.4 instead. 
+It seems the R 3.5 (released just two days ago) is incompatible with the packages. Please try and install R 3.4.4 instead. 
 
 Here's some links for windows and Mac OS X:
 
