@@ -1,11 +1,10 @@
 # ---
 # title: "Basic Text Analysis Using R (workshop material)"
 # author: "Justin Ho"
-# last updated: "22/04/2018"
+# last updated: "02/10/2018"
 # ---
 
 # Installing the packages
-install.packages("readtext")
 install.packages("quanteda")
 install.packages("magrittr")
 install.packages("dplyr")
@@ -13,12 +12,12 @@ install.packages("wordcloud")
 install.packages("ggplot2")
 
 # Loading the necessary packages
-library(readtext)
 library(quanteda)
 library(magrittr)
 
 # Loading the documents
-snp <-  readtext("SNP_corpus.csv", text_field = "post_message") %>% corpus()
+snp <-  read.csv("SNP_corpus.csv", stringsAsFactors = FALSE) %>% 
+  corpus(text_field = "post_message")
 
 # The followings are not necessary steps, but it is always a good idea to view a portion of your data
 snp[1:10] # print the first 10 documents
@@ -34,7 +33,7 @@ customstopwords <- c("s", "http", "stopword")
 # Creating DFM
 snptokens <- tokens(snp, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
 snpdfm <- dfm(snptokens, stem = FALSE) %>% 
-  dfm_trim(min_doc = 5, min_count = 10)
+  dfm_trim(min_doc = 5, min_termfreq = 10)
 
 # Inspecting the results
 topfeatures(snpdfm, 30) 
@@ -53,7 +52,7 @@ ggplot(topDf) + geom_point(aes(x=term, y=frequency)) +
 
 # Doing it again, removing stop words this time!
 snpdfm <- dfm(snptokens, remove = c(stopwords('english'), customstopwords), stem = FALSE) %>% 
-  dfm_trim(min_doc = 5, min_count = 10)
+  dfm_trim(min_doc = 5, min_termfreq = 10)
 
 # Inspecting the results again
 topfeatures(snpdfm, 30) 
@@ -82,11 +81,12 @@ kwic(snp, "eu", 4)
 # =================================== Keyness Analysis =======================================
 
 # Loading the UKIP corpus
-ukip <-  readtext("ukip_corpus.csv", text_field = "post_message") %>% corpus()
+ukip <-  read.csv("ukip_corpus.csv", stringsAsFactors = FALSE) %>% 
+  corpus(text_field = "post_message")
 cat(ukip[1:3])
 ukiptokens <- tokens(ukip, remove_punct = TRUE, remove_numbers = TRUE, verbose = TRUE, remove_url = TRUE)
 ukipdfm <- dfm(ukiptokens, remove = c(stopwords('english'), customstopwords)) %>% 
-  dfm_trim(min_doc = 5, min_count = 10)
+  dfm_trim(min_doc = 5, min_termfreq = 10)
 topfeatures(ukipdfm)
 
 # plotting it
@@ -102,23 +102,35 @@ head(kwds, 20)
 tail(kwds, 20)
 textplot_keyness(kwds)
 
-library(dplyr)
-#Select all word with p-value <= 0.05 and then make a comparison wordcloud
-kwdssig <- data.frame(term = kwds$feature, chi2 = kwds$chi2, p=kwds$p) %>% 
-  filter(kwds$p <= 0.05) %>% 
-  select(term, chi2)
-row.names(kwdssig) <- kwdssig$term
-kwdssig$SNP <- kwdssig$chi2
-kwdssig$UKIP <- kwdssig$chi2
-kwdssig$UKIP[kwdssig$UKIP > 0] <- 0
-kwdssig$SNP[kwdssig$SNP < 0] <- 0
-kwdssig <- kwdssig[,-1:-2]
-head(kwdssig)
-tail(kwdssig)
+# A user-defined function to plot comparison cloud
+keyness_cloud <- function(x, a = "A", b = "B", acol = "#00C094", bcol = "#F8766D", w = 600, h = 600, maxword = 500, png = TRUE){
+  require(wordcloud)
+  require(dplyr)
+  set.seed(1024)
+  #Select all word with p-value <= 0.05 and then make a comparison wordcloud
+  kwdssig <- data.frame(term = kwds$feature, chi2 = x$chi2, p=x$p) %>% 
+    filter(x$p <= 0.05) %>% 
+    select(term, chi2)
+  row.names(kwdssig) <- kwdssig$term
+  kwdssig$a <- kwdssig$chi2
+  kwdssig$b <- kwdssig$chi2
+  kwdssig$b[kwdssig$b > 0] <- 0
+  kwdssig$a[kwdssig$a < 0] <- 0
+  kwdssig <- kwdssig[,-1:-2]
+  colnames(kwdssig) <- c(a, b)
+  if (png) {
+    png(paste0(deparse(substitute(x)), ".png"), width = w, height = h)
+    comparison.cloud(kwdssig, random.order=FALSE, colors = c(acol, bcol),scale=c(6,.6), title.size=3, max.words = maxword)
+    dev.off()
+  } else {
+    comparison.cloud(kwdssig, random.order=FALSE, colors = c(acol, bcol),scale=c(6,.6), title.size=3, max.words = maxword)
+  }
+}
 
-library(wordcloud)
-set.seed(1024)
-png("SNPvsUKIP.png", width = 1200, height = 1200)
-comparison.cloud(kwdssig, random.order=FALSE, colors = c("goldenrod1","blueviolet"),scale=c(10,.6), title.size=5, max.words=600)
-dev.off()
+keyness_cloud(kwds, # Name of the keyness result object
+              a = "SNP", # Name of the target corpus
+              b = "UKIP", # Name of the reference corpus
+              acol = "goldenrod1", # Colour of the target corpus
+              bcol = "blueviolet", # Colour of the reference corpus
+              png = FALSE) # Save to png?
 
