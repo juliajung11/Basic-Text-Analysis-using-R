@@ -1,4 +1,3 @@
-install.packages("readtext")
 install.packages("quanteda")
 install.packages("magrittr")
 install.packages("dplyr")
