@@ -1,7 +1,7 @@
 # ---
 # title: "Basic Text Analysis Using R (workshop material)"
 # author: "Justin Ho"
-# last updated: "02/10/2018"
+# last updated: "27/05/2019"
 # ---
 
 # Installing the packages
@@ -132,5 +132,5 @@ keyness_cloud(kwds, # Name of the keyness result object
               b = "UKIP", # Name of the reference corpus
               acol = "goldenrod1", # Colour of the target corpus
               bcol = "blueviolet", # Colour of the reference corpus
-              png = FALSE) # Save to png?
+              png = TRUE) # Save to png?
 
