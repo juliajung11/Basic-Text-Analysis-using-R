@@ -108,7 +108,7 @@ keyness_cloud <- function(x, a = "A", b = "B", acol = "#00C094", bcol = "#F8766D
   require(dplyr)
   set.seed(1024)
   #Select all word with p-value <= 0.05 and then make a comparison wordcloud
-  kwdssig <- data.frame(term = kwds$feature, chi2 = x$chi2, p=x$p) %>% 
+  kwdssig <- data.frame(term = x$feature, chi2 = x$chi2, p=x$p) %>% 
     filter(x$p <= 0.05) %>% 
     select(term, chi2)
   row.names(kwdssig) <- kwdssig$term
